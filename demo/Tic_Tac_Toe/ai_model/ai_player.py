@@ -8,6 +8,21 @@
 任何异常，或返回值不满足以上条件，都会被调用方视为“AI 尚未就绪”，
 弹窗提示后返回主菜单，不会导致程序崩溃。
 """
+import numpy as np
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+
+model_name = "model_TicTacToe_v1"
+model_path = os.path.join(current_dir, "model", f"{model_name}.npy")
+model = np.load(model_path)
+
+def ternary_to_decimal(ternary_str: str) -> int:
+    """将三进制字符串转换为十进制整数"""
+    if not ternary_str or not all(char in '012' for char in ternary_str):
+        raise ValueError("输入必须是仅包含 0, 1, 2 的非空字符串")
+    return int(ternary_str, 3)
 
 def get_ai_action(board_state: str) -> tuple[int, int]:
     """
@@ -17,4 +32,15 @@ def get_ai_action(board_state: str) -> tuple[int, int]:
     Returns:
         tuple: (row, col)，取值范围均为 0-2
     """
-    pass
+
+    state_index = ternary_to_decimal(board_state)
+    opt_acton = np.argmax(model[state_index])
+    
+    row = int(opt_acton / 3)
+    col = int(opt_acton % 3)
+
+    return (row, col)
+
+if __name__ == "__main__":
+    pos = get_ai_action("000010000")
+    print(pos)
